@@ -3,6 +3,7 @@
 # Implements a Markov Decision Process
 
 import sys
+import copy
 
 class MDP():
 	def __init__(self, world, epsilon, discount):
@@ -15,29 +16,34 @@ class MDP():
 		delta = sys.maxint
 
 		while (delta >= (self.epsilon * (1.0 - self.discount) / self.discount)):
+			previousUtility = 0
 			delta = 0
 			for x in range(len(self.world)):
 				for y in range(len(self.world[0])):
 					currentNode = self.world[x][y]
 
-					# Get the adjacent nodes, checking to make sure the node is in bounds
-					if ((x + 1) > len(self.world) - 1 or self.world[x + 1][y].utility == 0):
-						aboveNode = currentNode
+					# Get the adjacent nodes, checking to make sure the node is in bounds and not a wall
+					if ((x + 1) > len(self.world) - 1 or self.world[x + 1][y].mapValue == 2):
+						aboveNode = copy.deepcopy(currentNode)
+						aboveNode.utility = 0
 					else:
 						aboveNode = self.world[x + 1][y]
 
-					if ((x - 1) < 0 or self.world[x - 1][y].utility == 0):
-						belowNode = currentNode
+					if ((x - 1) < 0 or self.world[x - 1][y].mapValue == 2):
+						belowNode = copy.deepcopy(currentNode)
+						belowNode.utility = 0
 					else:
 						belowNode = self.world[x - 1][y]
 
-					if ((y + 1) > len(self.world[0]) - 1 or self.world[x][y + 1].utility == 0):
-						rightNode = currentNode
+					if ((y + 1) > len(self.world[0]) - 1 or self.world[x][y + 1].mapValue == 2):
+						rightNode = copy.deepcopy(currentNode)
+						rightNode.utility = 0
 					else:
 						rightNode = self.world[x][y + 1]
 
-					if ((y - 1) < 0 or self.world[x][y - 1].utility == 0):
-						leftNode = currentNode
+					if ((y - 1) < 0 or self.world[x][y - 1].mapValue == 2):
+						leftNode = copy.deepcopy(currentNode)
+						leftNode.utility = 0
 					else:
 						leftNode = self.world[x][y - 1]
 
@@ -58,6 +64,9 @@ class MDP():
 
 
 	def solveMaze(self):
+		# Initialize utilites
+		self.updateUtilities()
+
 		# Initialize the current loation to the bottom left corner
 		currentNode = self.world[len(self.world) - 1][0]
 
